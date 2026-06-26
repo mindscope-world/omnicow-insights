@@ -11,10 +11,10 @@ import {
   Settings,
   LifeBuoy,
   Bell,
+  MessageSquare,
   Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TopoTexture } from "./primitives";
 import { SyncPill } from "./sync-pill";
 import { useOfflineStore } from "@/lib/omnicow/store";
 import { SYNC_TIMESTAMP, priorityCounts } from "@/lib/omnicow/data";
@@ -48,40 +48,33 @@ const NAV = [
 
 function Topbar() {
   return (
-    <header className="fixed inset-x-0 top-0 z-40 h-16 bg-savanna text-milk">
-      <TopoTexture className="text-milk opacity-15" />
-      <div className="relative flex h-full items-center gap-4 px-4 md:px-6">
-        <div className="flex w-[204px] shrink-0 flex-col justify-center">
-          <span className="font-serif text-2xl leading-none">
-            <span className="text-milk">Omni</span>
-            <span className="text-accent">Cow</span>
+    <header className="fixed inset-x-0 top-0 z-40 h-16 border-b border-border bg-card">
+      <div className="flex h-full items-center gap-4 px-4 md:px-6">
+        <div className="flex w-[188px] shrink-0 items-center gap-2">
+          <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
+            <LayoutGrid className="size-4" />
           </span>
-          <span className="mt-0.5 text-[10px] leading-tight text-milk/60">
-            Extension Intelligence Platform · DigiCow Africa
-          </span>
+          <span className="text-lg font-medium tracking-tight text-text-strong">OmniCow</span>
         </div>
         <div className="relative hidden flex-1 md:block">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-milk/50" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-soft" />
           <input
             placeholder="Search farmers, wards, clusters…"
-            className="h-9 w-full max-w-md rounded-full border border-milk/15 bg-milk/10 pl-9 pr-4 text-sm text-milk placeholder:text-milk/50 outline-none focus:border-accent/60"
+            className="h-9 w-full max-w-md rounded-full bg-secondary pl-9 pr-4 text-sm text-text-strong placeholder:text-text-soft outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2">
           <SyncPill />
-          <button className="relative grid size-9 place-items-center rounded-full bg-milk/10 text-milk hover:bg-milk/20">
-            <Bell className="size-4" />
-            <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-accent" />
+          <button className="relative grid size-9 place-items-center rounded-full text-text-mid hover:bg-secondary">
+            <Bell className="size-[18px]" />
+            <span className="absolute right-2 top-2 size-1.5 rounded-full bg-primary" />
           </button>
-          <div className="flex items-center gap-2">
-            <span className="grid size-9 place-items-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
-              KM
-            </span>
-            <div className="hidden leading-tight sm:block">
-              <p className="text-sm font-semibold text-milk">Kazi Mwende</p>
-              <p className="text-[11px] text-milk/60">Githunguri sub-county</p>
-            </div>
-          </div>
+          <button className="grid size-9 place-items-center rounded-full text-text-mid hover:bg-secondary">
+            <MessageSquare className="size-[18px]" />
+          </button>
+          <span className="grid size-9 place-items-center rounded-full bg-secondary text-sm font-medium text-text-mid">
+            KM
+          </span>
         </div>
       </div>
     </header>
@@ -107,21 +100,21 @@ function Sidebar() {
                     <Link
                       to={item.to}
                       className={cn(
-                        "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                        "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
                         active
-                          ? "bg-savanna text-milk"
+                          ? "bg-primary/10 font-medium text-primary"
                           : "text-text-mid hover:bg-secondary",
                       )}
                     >
-                      <item.icon className={cn("size-4 shrink-0", active ? "text-accent" : "text-text-soft")} />
+                      <item.icon className={cn("size-[18px] shrink-0", active ? "text-primary" : "text-text-soft")} />
                       <span className="flex-1 truncate">{item.name}</span>
                       {item.badge === "urgent" && (
-                        <span className="rounded-full bg-urgent px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        <span className="rounded-full bg-urgent/10 px-1.5 py-0.5 text-[10px] font-medium text-urgent">
                           {counts.urgent}
                         </span>
                       )}
                       {item.badge === "window" && (
-                        <span className="rounded-full bg-watch/15 px-1.5 py-0.5 text-[10px] font-bold text-watch">
+                        <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-text-mid">
                           12
                         </span>
                       )}

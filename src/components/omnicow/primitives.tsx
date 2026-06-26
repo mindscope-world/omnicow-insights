@@ -104,6 +104,7 @@ export function KpiCard({
   accentTop = false,
   urgent = false,
   icon,
+  tint = "blue",
 }: {
   label: string;
   value: React.ReactNode;
@@ -112,30 +113,40 @@ export function KpiCard({
   accentTop?: boolean;
   urgent?: boolean;
   icon?: React.ReactNode;
+  tint?: "blue" | "purple" | "pink";
 }) {
+  const tints: Record<string, string> = {
+    blue: "bg-blue-50 text-blue-600",
+    purple: "bg-purple-50 text-purple-600",
+    pink: "bg-pink-50 text-pink-600",
+  };
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-border bg-card p-4 shadow-sm",
-        accentTop && "border-t-4 border-t-accent",
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-text-soft">{label}</p>
-        {icon && <span className="text-accent">{icon}</span>}
-      </div>
-      <p className={cn("mt-2 text-3xl font-extrabold tracking-tight", urgent ? "text-urgent" : "text-text-strong")}>
-        {value}
-      </p>
-      <div className="mt-1.5 flex items-center gap-1.5 text-xs">
-        {delta && (
-          <span className={cn("inline-flex items-center gap-0.5 font-semibold", delta.up ? "text-safe" : "text-urgent")}>
-            {delta.up ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}
-            {delta.value}
+    <div className="relative rounded-xl border border-border bg-card p-5">
+      <div className="flex items-start gap-4">
+        {icon && (
+          <span className={cn("grid size-11 shrink-0 place-items-center rounded-lg", tints[tint])}>
+            {icon}
           </span>
         )}
-        {support && <span className="text-text-soft">{support}</span>}
+        <div className="min-w-0">
+          <p className="text-xs text-text-soft">{label}</p>
+          <p className={cn("mt-1 text-[26px] font-medium leading-tight tracking-tight", urgent ? "text-urgent" : "text-text-strong")}>
+            {value}
+          </p>
+          {support && <p className="mt-1 text-xs text-text-soft">{support}</p>}
+        </div>
       </div>
+      {delta && (
+        <span
+          className={cn(
+            "absolute bottom-4 right-4 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium",
+            delta.up ? "bg-safe/10 text-safe" : "bg-urgent/10 text-urgent",
+          )}
+        >
+          {delta.up ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}
+          {delta.value}
+        </span>
+      )}
     </div>
   );
 }
