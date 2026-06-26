@@ -14,7 +14,6 @@ import {
   Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TopoTexture } from "./primitives";
 import { SyncPill } from "./sync-pill";
 import { useOfflineStore } from "@/lib/omnicow/store";
 import { SYNC_TIMESTAMP, priorityCounts } from "@/lib/omnicow/data";
