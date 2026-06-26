@@ -17,7 +17,7 @@ export const Route = createFileRoute("/farmers")({
       { name: "description", content: "Full farmer records, adoption history and graph features." },
     ],
   }),
-  component: FarmerProfiles;
+  component: FarmerProfiles,
 });
 
 function FarmerProfiles() {
