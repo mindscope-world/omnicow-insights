@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RouteMapRouteImport } from './routes/route-map'
 import { Route as FollowUpRouteImport } from './routes/follow-up'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RouteMapRoute = RouteMapRouteImport.update({
+  id: '/route-map',
+  path: '/route-map',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FollowUpRoute = FollowUpRouteImport.update({
   id: '/follow-up',
   path: '/follow-up',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/follow-up': typeof FollowUpRoute
+  '/route-map': typeof RouteMapRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/follow-up': typeof FollowUpRoute
+  '/route-map': typeof RouteMapRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/follow-up': typeof FollowUpRoute
+  '/route-map': typeof RouteMapRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/follow-up'
+  fullPaths: '/' | '/follow-up' | '/route-map'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/follow-up'
-  id: '__root__' | '/' | '/follow-up'
+  to: '/' | '/follow-up' | '/route-map'
+  id: '__root__' | '/' | '/follow-up' | '/route-map'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FollowUpRoute: typeof FollowUpRoute
+  RouteMapRoute: typeof RouteMapRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/route-map': {
+      id: '/route-map'
+      path: '/route-map'
+      fullPath: '/route-map'
+      preLoaderRoute: typeof RouteMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/follow-up': {
       id: '/follow-up'
       path: '/follow-up'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FollowUpRoute: FollowUpRoute,
+  RouteMapRoute: RouteMapRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
