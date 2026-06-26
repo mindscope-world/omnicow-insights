@@ -10,15 +10,29 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrendsRouteImport } from './routes/trends'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RouteMapRouteImport } from './routes/route-map'
 import { Route as FollowUpRouteImport } from './routes/follow-up'
 import { Route as FarmersRouteImport } from './routes/farmers'
 import { Route as CommunityRouteImport } from './routes/community'
+import { Route as ClustersRouteImport } from './routes/clusters'
+import { Route as AgentPerformanceRouteImport } from './routes/agent-performance'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TrendsRoute = TrendsRouteImport.update({
   id: '/trends',
   path: '/trends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RouteMapRoute = RouteMapRouteImport.update({
@@ -41,6 +55,16 @@ const CommunityRoute = CommunityRouteImport.update({
   path: '/community',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClustersRoute = ClustersRouteImport.update({
+  id: '/clusters',
+  path: '/clusters',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentPerformanceRoute = AgentPerformanceRouteImport.update({
+  id: '/agent-performance',
+  path: '/agent-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,56 +73,90 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agent-performance': typeof AgentPerformanceRoute
+  '/clusters': typeof ClustersRoute
   '/community': typeof CommunityRoute
   '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
+  '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trends': typeof TrendsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agent-performance': typeof AgentPerformanceRoute
+  '/clusters': typeof ClustersRoute
   '/community': typeof CommunityRoute
   '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
+  '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trends': typeof TrendsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agent-performance': typeof AgentPerformanceRoute
+  '/clusters': typeof ClustersRoute
   '/community': typeof CommunityRoute
   '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
+  '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trends': typeof TrendsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agent-performance'
+    | '/clusters'
     | '/community'
     | '/farmers'
     | '/follow-up'
     | '/route-map'
+    | '/settings'
+    | '/sitemap.xml'
     | '/trends'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/community' | '/farmers' | '/follow-up' | '/route-map' | '/trends'
+  to:
+    | '/'
+    | '/agent-performance'
+    | '/clusters'
+    | '/community'
+    | '/farmers'
+    | '/follow-up'
+    | '/route-map'
+    | '/settings'
+    | '/sitemap.xml'
+    | '/trends'
   id:
     | '__root__'
     | '/'
+    | '/agent-performance'
+    | '/clusters'
     | '/community'
     | '/farmers'
     | '/follow-up'
     | '/route-map'
+    | '/settings'
+    | '/sitemap.xml'
     | '/trends'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentPerformanceRoute: typeof AgentPerformanceRoute
+  ClustersRoute: typeof ClustersRoute
   CommunityRoute: typeof CommunityRoute
   FarmersRoute: typeof FarmersRoute
   FollowUpRoute: typeof FollowUpRoute
   RouteMapRoute: typeof RouteMapRoute
+  SettingsRoute: typeof SettingsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TrendsRoute: typeof TrendsRoute
 }
 
@@ -109,6 +167,20 @@ declare module '@tanstack/react-router' {
       path: '/trends'
       fullPath: '/trends'
       preLoaderRoute: typeof TrendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/route-map': {
@@ -139,6 +211,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/clusters': {
+      id: '/clusters'
+      path: '/clusters'
+      fullPath: '/clusters'
+      preLoaderRoute: typeof ClustersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent-performance': {
+      id: '/agent-performance'
+      path: '/agent-performance'
+      fullPath: '/agent-performance'
+      preLoaderRoute: typeof AgentPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -151,10 +237,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentPerformanceRoute: AgentPerformanceRoute,
+  ClustersRoute: ClustersRoute,
   CommunityRoute: CommunityRoute,
   FarmersRoute: FarmersRoute,
   FollowUpRoute: FollowUpRoute,
   RouteMapRoute: RouteMapRoute,
+  SettingsRoute: SettingsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TrendsRoute: TrendsRoute,
 }
 export const routeTree = rootRouteImport
