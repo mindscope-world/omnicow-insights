@@ -3,7 +3,10 @@ import { PageHeader } from "@/components/omnicow/page-header";
 import { StatBar } from "@/components/omnicow/primitives";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CLUSTERS, CLUSTER_COLORS, FARMERS } from "@/lib/omnicow/data";
+import { CLUSTER_COLORS } from "@/lib/omnicow/data";
+import { farmerApi } from "@/lib/api/farmers";
+import { useQuery } from "@tanstack/react-query";
+import type { Farmer } from "@/lib/omnicow/data";
 
 export const Route = createFileRoute("/clusters")({
   head: () => ({
@@ -16,12 +19,25 @@ export const Route = createFileRoute("/clusters")({
 });
 
 function Clusters() {
+  const { data: farmers = [], isLoading, error } = useQuery({
+    queryKey: ['farmers'],
+    queryFn: () => farmerApi.getFarmers(0, 1000), // get all farmers
+  });
+
+  if (isLoading) return <div className="p-4">Loading clusters...</div>;
+  if (error) return <div className="p-4 text-red-500">Error loading clusters</div>;
+
+  // Compute clusters from farmers data
+  const clusterSet = new Set<number>();
+  farmers.forEach(f => clusterSet.add(f.cluster));
+  const clusters = Array.from(clusterSet).sort((a, b) => a - b);
+
   return (
     <div className="space-y-6 p-4 md:p-6">
       <PageHeader title="Neo4j clusters" subtitle="Louvain communities detected in the farmer relationship graph." />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {CLUSTERS.map((c) => {
-          const fs = FARMERS.filter((f) => f.cluster === c);
+        {clusters.map((c) => {
+          const fs = farmers.filter((f) => f.cluster === c);
           const peer = fs.reduce((s, f) => s + f.peerAdoptionRatio, 0) / fs.length;
           const adopters = fs.filter((f) => f.adopted).length;
           const rising = fs.filter((f) => f.momentum === "rising").length >= fs.length / 2;

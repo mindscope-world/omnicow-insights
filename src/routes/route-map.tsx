@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { RouteLeaflet } from "@/components/omnicow/route-leaflet";
 import { PriorityDot } from "@/components/omnicow/primitives";
 import { cn } from "@/lib/utils";
-import { FARMERS, type Farmer } from "@/lib/omnicow/data";
+import { farmerApi } from "@/lib/api/farmers";
+import { useQuery } from "@tanstack/react-query";
+import type { Farmer } from "@/lib/omnicow/data";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/route-map")({
@@ -19,13 +21,21 @@ export const Route = createFileRoute("/route-map")({
 });
 
 function RouteMap() {
+  const { data: farmers = [], isLoading, error } = useQuery({
+    queryKey: ['farmers'],
+    queryFn: () => farmerApi.getFarmers(0, 1000), // get all farmers
+  });
+
+  if (isLoading) return <div className="p-4">Loading farmers...</div>;
+  if (error) return <div className="p-4 text-red-500">Error loading farmers</div>;
+
   const stops = useMemo(
     () =>
-      [...FARMERS]
+      [...farmers]
         .filter((f) => f.priority !== "low")
         .sort((a, b) => b.day7 - a.day7)
         .slice(0, 8),
-    [],
+    [farmers]
   );
   const [nextStop, setNextStop] = useState<Farmer | null>(null);
 

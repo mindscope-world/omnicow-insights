@@ -8,7 +8,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { PageHeader } from "@/components/omnicow/page-header";
 import { ShapCard, StatBar } from "@/components/omnicow/primitives";
 import { cn } from "@/lib/utils";
-import { FARMERS, type Farmer, type Outcome } from "@/lib/omnicow/data";
+import { farmerApi } from "@/lib/api/farmers";
+import { useQuery } from "@tanstack/react-query";
+import type { Farmer } from "@/lib/omnicow/data";
 
 export const Route = createFileRoute("/farmers")({
   head: () => ({
@@ -22,18 +24,39 @@ export const Route = createFileRoute("/farmers")({
 
 function FarmerProfiles() {
   const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState(FARMERS[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const filtered = useMemo(
-    () =>
-      FARMERS.filter(
-        (f) =>
-          f.id.toLowerCase().includes(query.toLowerCase()) ||
-          f.ward.toLowerCase().includes(query.toLowerCase()),
-      ).slice(0, 25),
-    [query],
-  );
-  const farmer = FARMERS.find((f) => f.id === selectedId)!;
+  const { data: farmers = [], isLoading, error } = useQuery({
+    queryKey: ['farmers'],
+    queryFn: () => farmerApi.getFarmers(0, 100), // fetch first 100 farmers
+  });
+
+  // Set selectedId to first farmer when data loads and none selected
+  if (farmers.length > 0 && !selectedId) {
+    setSelectedId(farmers[0].id);
+  }
+
+  const filtered = useMemo(() => {
+    if (!query) return farmers.slice(0, 25);
+    return farmers.filter(
+      (f) =>
+        f.id.toLowerCase().includes(query.toLowerCase()) ||
+        f.ward.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 25);
+  }, [query, farmers]);
+
+  const farmer = farmers.find((f) => f.id === selectedId);
+
+  const { data: farmerDetail } = useQuery({
+    queryKey: ['farmer', selectedId],
+    queryFn: () => farmerApi.getFarmerById(selectedId!),
+    enabled: !!selectedId,
+  });
+
+  const detailedFarmer = farmerDetail ?? farmer; // fallback to the one from list if detail not fetched yet
+
+  if (isLoading) return <div className="p-4">Loading farmers...</div>;
+  if (error) return <div className="p-4 text-red-500">Error loading farmers</div>;
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -55,20 +78,20 @@ function FarmerProfiles() {
               <button
                 key={f.id}
                 onClick={() => setSelectedId(f.id)}
-                className={cn(
+                className={classNames(
                   "w-full rounded-lg px-3 py-2 text-left transition-colors",
-                  f.id === selectedId ? "bg-savanna text-milk" : "hover:bg-secondary",
+                  f.id === selectedId ? "bg-savanna text-milk" : "hover:bg-secondary"
                 )}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">{f.id}</span>
                   {f.cooperative !== "Independent" && (
-                    <span className={cn("rounded px-1.5 py-0.5 text-[10px]", f.id === selectedId ? "bg-milk/20" : "bg-secondary text-text-soft")}>
+                    <span className={classNames("rounded px-1.5 py-0.5 text-[10px]", f.id === selectedId ? "bg-milk/20" : "bg-secondary text-text-soft")}>
                       Co-op
                     </span>
                   )}
                 </div>
-                <p className={cn("text-xs", f.id === selectedId ? "text-milk/70" : "text-text-soft")}>
+                <p className={classNames("text-xs", f.id === selectedId ? "text-milk/70" : "text-text-soft")}>
                   {f.ward} · last contact {f.lastContact}
                 </p>
               </button>
@@ -77,10 +100,14 @@ function FarmerProfiles() {
           <p className="text-center text-xs text-text-soft">Showing {filtered.length} · 25 per page</p>
         </div>
 
-        <FarmerDetail farmer={farmer} />
+        <FarmerDetail farmer={detailedFarmer} allFarmers={farmers} />
       </div>
     </div>
   );
+}
+
+function classNames(...classes: any[]) {
+  return classes.filter(Boolean).join(" ");
 }
 
 const OUTCOME_ICON: Record<Outcome, React.ReactNode> = {
@@ -89,13 +116,15 @@ const OUTCOME_ICON: Record<Outcome, React.ReactNode> = {
   pending: <Clock className="size-4 text-watch" />,
 };
 
-function FarmerDetail({ farmer }: { farmer: Farmer }) {
+function FarmerDetail({ farmer, allFarmers }: { farmer: Farmer | undefined; allFarmers: Farmer[] }) {
+  if (!farmer) return <div className="p-4">Select a farmer to view details</div>;
+
   const adopters = Math.round(farmer.peerAdoptionRatio * farmer.communitySize);
   const donut = [
     { name: "Adopters", value: adopters, color: "var(--safe)" },
     { name: "Non-adopters", value: farmer.communitySize - adopters, color: "var(--border)" },
   ];
-  const peers = FARMERS.filter((f) => f.ward === farmer.ward && f.id !== farmer.id).slice(0, 6);
+  const peers = allFarmers.filter((f) => f.ward === farmer.ward && f.id !== farmer.id).slice(0, 6);
 
   return (
     <div className="rounded-xl border border-border bg-card shadow-sm">
@@ -221,7 +250,7 @@ function FarmerDetail({ farmer }: { farmer: Farmer }) {
                   <tr key={p.id} className="border-b border-border/60 last:border-0">
                     <td className="py-2 font-medium text-text-strong">{p.id}</td>
                     <td className="py-2">
-                      <span className={cn("text-xs font-semibold", p.adopted ? "text-safe" : "text-urgent")}>
+                      <span className={classNames("text-xs font-semibold", p.adopted ? "text-safe" : "text-urgent")}>
                         {p.adopted ? "Adopted" : "Not adopted"}
                       </span>
                     </td>
@@ -251,7 +280,7 @@ function FarmerDetail({ farmer }: { farmer: Farmer }) {
                       {pos && <div className="h-3 rounded-r bg-safe" style={{ width: `${w}%` }} />}
                     </div>
                   </div>
-                  <span className={cn("text-right font-semibold tabular-nums", pos ? "text-safe" : "text-urgent")}>
+                  <span className={classNames("text-right font-semibold tabular-nums", pos ? "text-safe" : "text-urgent")}>
                     {pos ? "+" : ""}{s.impact}
                   </span>
                 </div>

@@ -12,7 +12,9 @@ import {
 import { PageHeader } from "@/components/omnicow/page-header";
 import { ScoreBar } from "@/components/omnicow/primitives";
 import { cn } from "@/lib/utils";
-import { FARMERS, type WindowKind } from "@/lib/omnicow/data";
+import { type WindowKind } from "@/lib/omnicow/data";
+import { farmerApi } from "@/lib/api/farmers";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/follow-up")({
@@ -40,16 +42,24 @@ function windowBadge(kind: WindowKind) {
 }
 
 function FollowUp() {
-  // assign each farmer to a day deterministically
+  const { data: farmers = [], isLoading, error } = useQuery({
+    queryKey: ['farmers'],
+    queryFn: () => farmerApi.getFarmers(0, 1000), // get all farmers
+  });
+
+  if (isLoading) return <div className="p-4">Loading farmers...</div>;
+  if (error) return <div className="p-4 text-red-500">Error loading farmers</div>;
+
+  // assign each farmer to a day deterministically (using the order from the API)
   const byDay = useMemo(() => {
-    const map = new Map<number, typeof FARMERS>();
-    FARMERS.forEach((f, i) => {
+    const map = new Map<number, typeof farmers>();
+    farmers.forEach((f, i) => {
       const day = i % 14;
       if (!map.has(day)) map.set(day, []);
       map.get(day)!.push(f);
     });
     return map;
-  }, []);
+  }, [farmers]);
 
   const [activeDay, setActiveDay] = useState<number | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -70,7 +80,7 @@ function FollowUp() {
     <div className="space-y-6 p-4 md:p-6">
       <PageHeader
         title="Follow-up schedule"
-        subtitle="Farmers due on their Day 7, 90 and 120 adoption windows across the next two weeks."
+        subtitle="Farmers due on their Day 7, 90 and 120-day adoption windows across the next two weeks."
       />
 
       {/* calendar strip */}
@@ -136,13 +146,13 @@ function FollowUp() {
 
       <div className="space-y-6">
         {visibleDays.map((dayIdx) => {
-          const farmers = byDay.get(dayIdx) ?? [];
-          if (farmers.length === 0) return null;
+          const farmersForDay = byDay.get(dayIdx) ?? [];
+          if (farmersForDay.length === 0) return null;
           return (
             <div key={dayIdx}>
               <h2 className="mb-3 font-serif text-xl text-text-strong">{fmt(DAYS[dayIdx])}</h2>
               <div className="grid gap-3 md:grid-cols-2">
-                {farmers.map((f) => (
+                {farmersForDay.map((f) => (
                   <div
                     key={f.id}
                     className={cn(

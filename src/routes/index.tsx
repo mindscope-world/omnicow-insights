@@ -13,14 +13,9 @@ import { KpiCard, PriorityBadge, PriorityDot, ScoreBar } from "@/components/omni
 import { DetailPanel } from "@/components/omnicow/detail-panel";
 import { OutcomeModal, ReScoreModal } from "@/components/omnicow/modals";
 import { cn } from "@/lib/utils";
-import {
-  FARMERS,
-  CLUSTERS,
-  priorityCounts,
-  type Farmer,
-  type Priority,
-} from "@/lib/omnicow/data";
-import { toast } from "sonner";
+import { farmerApi } from "@/lib/api/farmers";
+import { useQuery } from "@tanstack/react-query";
+import type { Farmer } from "@/lib/omnicow/data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,34 +27,63 @@ export const Route = createFileRoute("/")({
   component: PriorityQueue,
 });
 
-type Filter = "all" | Priority | "day7" | "day90";
+type Filter = "all" | "urgent" | "watch" | "low" | "day7" | "day90";
 type SortKey = "day7" | "day90" | "day120";
 
 function PriorityQueue() {
   const navigate = useNavigate();
-  const counts = priorityCounts();
   const [filter, setFilter] = useState<Filter>("all");
   const [cluster, setCluster] = useState<number | "all">("all");
   const [sort, setSort] = useState<SortKey>("day7");
-  const [selectedId, setSelectedId] = useState<string>(FARMERS[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [outcomeOpen, setOutcomeOpen] = useState(false);
   const [rescoreOpen, setRescoreOpen] = useState(false);
 
-  const rows = useMemo(() => {
-    let list = [...FARMERS];
+  const { data: farmers = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['farmers'],
+    queryFn: () => farmerApi.getFarmers(0, 1000), // get a large number to approximate all
+  });
+
+  // Compute clusters from farmers
+  const clusters = useMemo(() => {
+    const ids = new Array<number>();
+    farmers.forEach(f => {
+      if (!ids.includes(f.cluster)) {
+        ids.push(f.cluster);
+      }
+    });
+    return ids.sort((a, b) => a - b);
+  }, [farmers]);
+
+  // Set selectedId to first farmer when data loads and none selected
+  if (farmers.length > 0 && !selectedId) {
+    setSelectedId(farmers[0].id);
+  }
+
+  const filtered = useMemo(() => {
+    let list = [...farmers];
     if (filter === "urgent" || filter === "watch" || filter === "low")
-      list = list.filter((f) => f.priority === filter);
-    if (filter === "day7") list = list.filter((f) => f.window.kind === "Day 7");
-    if (filter === "day90") list = list.filter((f) => f.window.kind === "Day 90");
-    if (cluster !== "all") list = list.filter((f) => f.cluster === cluster);
+      list = list.filter(f => f.priority === filter);
+    if (filter === "day7") list = list.filter(f => f.window.kind === "Day 7");
+    if (filter === "day90") list = list.filter(f => f.window.kind === "Day 90");
+    if (cluster !== "all") list = list.filter(f => f.cluster === cluster);
     list.sort((a, b) => b[sort] - a[sort]);
     return list;
-  }, [filter, cluster, sort]);
+  }, [filter, cluster, sort, farmers]);
 
-  const selected = FARMERS.find((f) => f.id === selectedId) ?? null;
-  const persuadable = FARMERS.filter((f) => f.day7 >= 0.3 && f.day7 <= 0.85).length;
-  const avg = Math.round((FARMERS.reduce((s, f) => s + f.day7, 0) / FARMERS.length) * 100);
-  const closing = FARMERS.filter((f) => f.window.daysRemaining <= 2).length;
+  const selected = farmers.find(f => f.id === selectedId) ?? null;
+
+  const persuadable = farmers.filter(f => f.day7 >= 0.3 && f.day7 <= 0.85).length;
+  const avg = farmers.length > 0 ? Math.round((farmers.reduce((s, f) => s + f.day7, 0) / farmers.length) * 100) : 0;
+  const closing = farmers.filter(f => f.window.daysRemaining <= 2).length;
+
+  // Mock counts by priority (since we don't have an API endpoint for aggregated counts)
+  const counts = {
+    all: farmers.length,
+    urgent: farmers.filter(f => f.priority === "urgent").length,
+    watch: farmers.filter(f => f.priority === "watch").length,
+    low: farmers.filter(f => f.priority === "low").length,
+  };
 
   const filters: { key: Filter; label: string; dot?: string }[] = [
     { key: "all", label: `All (${counts.all})` },
@@ -69,6 +93,9 @@ function PriorityQueue() {
     { key: "day7", label: "Day 7 window" },
     { key: "day90", label: "Day 90 window" },
   ];
+
+  if (isLoading) return <div className="p-4">Loading...</div>;
+  if (error) return <div className="p-4 text-red-500">Error loading data</div>;
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -80,7 +107,10 @@ function PriorityQueue() {
             <Button variant="outline" size="sm" onClick={() => toast.success("Queue exported to CSV")}>
               <Download className="size-4" /> Export CSV
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setRescoreOpen(true)}>
+            <Button variant="outline" size="sm" onClick={() => {
+              setRescoreOpen(true);
+              refetch();
+            }}>
               <RefreshCw className="size-4" /> Re-score
             </Button>
             <Button size="sm" onClick={() => navigate({ to: "/route-map" })}>
@@ -125,7 +155,7 @@ function PriorityQueue() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setCluster("all")}>All clusters</DropdownMenuItem>
-                {CLUSTERS.map((c) => (
+                {clusters.map((c) => (
                   <DropdownMenuItem key={c} onClick={() => setCluster(c)}>
                     Cluster {c}
                   </DropdownMenuItem>
@@ -159,7 +189,7 @@ function PriorityQueue() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((f) => (
+                  {filtered.map((f) => (
                     <FarmerRow
                       key={f.id}
                       farmer={f}

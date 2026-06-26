@@ -7,7 +7,10 @@ import { Label } from "@/components/ui/label";
 import { ForceGraph, type GraphFilters } from "@/components/omnicow/force-graph";
 import { ShapCard, StatBar } from "@/components/omnicow/primitives";
 import { cn } from "@/lib/utils";
-import { CLUSTERS, CLUSTER_COLORS, FARMERS, type Farmer } from "@/lib/omnicow/data";
+import { CLUSTER_COLORS } from "@/lib/omnicow/data";
+import { farmerApi } from "@/lib/api/farmers";
+import { useQuery } from "@tanstack/react-query";
+import type { Farmer } from "@/lib/omnicow/data";
 
 export const Route = createFileRoute("/community")({
   head: () => ({
@@ -21,12 +24,42 @@ export const Route = createFileRoute("/community")({
 
 function Community() {
   const [filters, setFilters] = useState<GraphFilters>({
-    visibleClusters: new Set(CLUSTERS),
+    visibleClusters: new Set<number>(), // will be filled after data loads
     edgeMode: "both",
     adoptedOnly: false,
   });
-  const [selected, setSelected] = useState<Farmer | null>(FARMERS[0]);
+  const [selected, setSelected] = useState<Farmer | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+
+  const { data: farmers = [], isLoading, error } = useQuery({
+    queryKey: ['farmers'],
+    queryFn: () => farmerApi.getFarmers(0, 1000), // get all farmers
+  });
+
+  // Compute unique clusters from farmers data
+  const clustersFromData = useMemo(() => {
+    const set = new Set<number>();
+    farmers.forEach(f => set.add(f.cluster));
+    return Array.from(set).sort((a, b) => a - b);
+  }, [farmers]);
+
+  // Set selected to first farmer when data loads and none selected
+  if (farmers.length > 0 && !selected) {
+    setSelected(farmers[0]);
+  }
+
+  // Initialize visibleClusters with all clusters from data on first load
+  // We do this in a useEffect to avoid infinite loops
+  // But we can also initialize the state with the computed clusters
+  // However, we want to update the state when clustersFromData changes
+  // We'll use useEffect to set the initial state of visibleClusters
+  // We'll do it once when farmers load.
+  // We'll use a ref to check if we have initialized.
+  const initialized = useRef(false);
+  if (farmers.length > 0 && !initialized.current) {
+    setFilters(f => ({ ...f, visibleClusters: new Set(clustersFromData) }));
+    initialized.current = true;
+  }
 
   const toggleCluster = (c: number) =>
     setFilters((f) => {
@@ -35,10 +68,13 @@ function Community() {
       return { ...f, visibleClusters: next };
     });
 
+  if (isLoading) return <div className="p-4">Loading community graph...</div>;
+  if (error) return <div className="p-4 text-red-500">Error loading community data</div>;
+
   return (
     <div className="grid lg:grid-cols-[1fr_360px]">
       <div ref={wrapRef} className="relative h-[calc(100vh-4rem)] bg-milk">
-        <ForceGraph farmers={FARMERS} filters={filters} onSelect={setSelected} />
+        <ForceGraph farmers={farmers} filters={filters} onSelect={setSelected} />
         <div className="absolute left-4 top-4 flex flex-col gap-1 rounded-lg border border-border bg-card p-1 shadow-sm">
           {[ZoomIn, ZoomOut, Maximize].map((Icon, i) => (
             <button
@@ -64,7 +100,7 @@ function Community() {
         <div>
           <h3 className="mb-2 text-sm font-semibold text-text-strong">Communities</h3>
           <div className="space-y-1">
-            {CLUSTERS.map((c) => (
+            {clustersFromData.map((c) => (
               <button
                 key={c}
                 onClick={() => toggleCluster(c)}
@@ -76,7 +112,7 @@ function Community() {
                 <span className="size-3 rounded-full" style={{ background: CLUSTER_COLORS[c % CLUSTER_COLORS.length] }} />
                 Cluster {c}
                 <span className="ml-auto text-xs text-text-soft">
-                  {FARMERS.filter((f) => f.cluster === c).length}
+                  {farmers.filter((f) => f.cluster === c).length}
                 </span>
               </button>
             ))}
