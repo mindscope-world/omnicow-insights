@@ -13,6 +13,7 @@ import { Route as TrendsRouteImport } from './routes/trends'
 import { Route as RouteMapRouteImport } from './routes/route-map'
 import { Route as FollowUpRouteImport } from './routes/follow-up'
 import { Route as FarmersRouteImport } from './routes/farmers'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TrendsRoute = TrendsRouteImport.update({
@@ -35,6 +36,11 @@ const FarmersRoute = FarmersRouteImport.update({
   path: '/farmers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,6 +49,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/community': typeof CommunityRoute
   '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/community': typeof CommunityRoute
   '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/community': typeof CommunityRoute
   '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
@@ -65,14 +74,28 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/farmers' | '/follow-up' | '/route-map' | '/trends'
+  fullPaths:
+    | '/'
+    | '/community'
+    | '/farmers'
+    | '/follow-up'
+    | '/route-map'
+    | '/trends'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/farmers' | '/follow-up' | '/route-map' | '/trends'
-  id: '__root__' | '/' | '/farmers' | '/follow-up' | '/route-map' | '/trends'
+  to: '/' | '/community' | '/farmers' | '/follow-up' | '/route-map' | '/trends'
+  id:
+    | '__root__'
+    | '/'
+    | '/community'
+    | '/farmers'
+    | '/follow-up'
+    | '/route-map'
+    | '/trends'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CommunityRoute: typeof CommunityRoute
   FarmersRoute: typeof FarmersRoute
   FollowUpRoute: typeof FollowUpRoute
   RouteMapRoute: typeof RouteMapRoute
@@ -109,6 +132,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FarmersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -121,6 +151,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CommunityRoute: CommunityRoute,
   FarmersRoute: FarmersRoute,
   FollowUpRoute: FollowUpRoute,
   RouteMapRoute: RouteMapRoute,
