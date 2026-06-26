@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,6 +52,14 @@ function Settings() {
   const offline = useOfflineStore((s) => s.offline);
   const language = useOfflineStore((s) => s.language);
   const scoreDisplay = useOfflineStore((s) => s.scoreDisplay);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  useEffect(() => {
+    setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
+  }, []);
+  const applyTheme = (v: string) => {
+    setTheme(v as "light" | "dark");
+    document.documentElement.classList.toggle("dark", v === "dark");
+  };
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6">
@@ -96,11 +105,7 @@ function Settings() {
         </div>
         <div>
           <Label className="mb-1.5 block text-text-soft">Theme</Label>
-          <Toggle
-            value={document.documentElement.classList.contains("dark") ? "dark" : "light"}
-            options={[["light", "Light"], ["dark", "Dark"]]}
-            onChange={(v) => document.documentElement.classList.toggle("dark", v === "dark")}
-          />
+          <Toggle value={theme} options={[["light", "Light"], ["dark", "Dark"]]} onChange={applyTheme} />
         </div>
       </Section>
     </div>
