@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RouteMapRouteImport } from './routes/route-map'
 import { Route as FollowUpRouteImport } from './routes/follow-up'
+import { Route as FarmersRouteImport } from './routes/farmers'
 import { Route as IndexRouteImport } from './routes/index'
 
 const RouteMapRoute = RouteMapRouteImport.update({
@@ -23,6 +24,11 @@ const FollowUpRoute = FollowUpRouteImport.update({
   path: '/follow-up',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FarmersRoute = FarmersRouteImport.update({
+  id: '/farmers',
+  path: '/farmers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/follow-up' | '/route-map'
+  fullPaths: '/' | '/farmers' | '/follow-up' | '/route-map'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/follow-up' | '/route-map'
-  id: '__root__' | '/' | '/follow-up' | '/route-map'
+  to: '/' | '/farmers' | '/follow-up' | '/route-map'
+  id: '__root__' | '/' | '/farmers' | '/follow-up' | '/route-map'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FarmersRoute: typeof FarmersRoute
   FollowUpRoute: typeof FollowUpRoute
   RouteMapRoute: typeof RouteMapRoute
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FollowUpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/farmers': {
+      id: '/farmers'
+      path: '/farmers'
+      fullPath: '/farmers'
+      preLoaderRoute: typeof FarmersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FarmersRoute: FarmersRoute,
   FollowUpRoute: FollowUpRoute,
   RouteMapRoute: RouteMapRoute,
 }
