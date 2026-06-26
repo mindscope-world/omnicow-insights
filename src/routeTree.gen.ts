@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrendsRouteImport } from './routes/trends'
 import { Route as RouteMapRouteImport } from './routes/route-map'
 import { Route as FollowUpRouteImport } from './routes/follow-up'
 import { Route as FarmersRouteImport } from './routes/farmers'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TrendsRoute = TrendsRouteImport.update({
+  id: '/trends',
+  path: '/trends',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RouteMapRoute = RouteMapRouteImport.update({
   id: '/route-map',
   path: '/route-map',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
+  '/trends': typeof TrendsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
+  '/trends': typeof TrendsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/farmers': typeof FarmersRoute
   '/follow-up': typeof FollowUpRoute
   '/route-map': typeof RouteMapRoute
+  '/trends': typeof TrendsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/farmers' | '/follow-up' | '/route-map'
+  fullPaths: '/' | '/farmers' | '/follow-up' | '/route-map' | '/trends'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/farmers' | '/follow-up' | '/route-map'
-  id: '__root__' | '/' | '/farmers' | '/follow-up' | '/route-map'
+  to: '/' | '/farmers' | '/follow-up' | '/route-map' | '/trends'
+  id: '__root__' | '/' | '/farmers' | '/follow-up' | '/route-map' | '/trends'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +76,18 @@ export interface RootRouteChildren {
   FarmersRoute: typeof FarmersRoute
   FollowUpRoute: typeof FollowUpRoute
   RouteMapRoute: typeof RouteMapRoute
+  TrendsRoute: typeof TrendsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trends': {
+      id: '/trends'
+      path: '/trends'
+      fullPath: '/trends'
+      preLoaderRoute: typeof TrendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/route-map': {
       id: '/route-map'
       path: '/route-map'
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   FarmersRoute: FarmersRoute,
   FollowUpRoute: FollowUpRoute,
   RouteMapRoute: RouteMapRoute,
+  TrendsRoute: TrendsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
