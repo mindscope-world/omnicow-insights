@@ -14,9 +14,9 @@ export interface AgentPerformance {
 export const agentApi = {
   // Get agent performance data from analytics endpoint
   getAgentPerformance: async () => {
-    const response = await apiClient.get('/analytics/trainer-effectiveness');
+    const response = await apiClient.get('/analytics/trainer-effectiveness/');
     // Map the response to match our expected interface
-    return response.data.map((trainer: any) => ({
+    return response.map((trainer: any) => ({
       agent_id: trainer.trainer_id,
       agent_name: trainer.trainer_name,
       trainings_conducted: trainer.trainings_conducted,

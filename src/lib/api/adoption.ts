@@ -21,14 +21,14 @@ export const adoptionApi = {
       limit: limit.toString(),
       ...filters,
     });
-    const response = await apiClient.get(`/adoption?${params.toString()}`);
-    return response.data;
+    const response = await apiClient.get(`/adoptions/?${params.toString()}`);
+    return response;
   },
 
   // Get single adoption by ID
   getAdoptionById: async (adoptionId: string) => {
-    const response = await apiClient.get(`/adoption/${adoptionId}`);
-    return response.data;
+    const response = await apiClient.get(`/adoptions/${adoptionId}/`);
+    return response;
   },
 
   // Create new adoption
@@ -36,8 +36,8 @@ export const adoptionApi = {
     farmer_id: string;
     input_product_name: string;
   }) => {
-    const response = await apiClient.post('/adoption', adoptionData);
-    return response.data;
+    const response = await apiClient.post('/adoptions/', adoptionData);
+    return response;
   },
 
   // Update adoption (if needed)
@@ -45,12 +45,12 @@ export const adoptionApi = {
     adoptionId: string,
     adoptionData: Partial<Adoption>
   ) => {
-    const response = await apiClient.put(`/adoption/${adoptionId}`, adoptionData);
-    return response.data;
+    const response = await apiClient.put(`/adoptions/${adoptionId}/`, adoptionData);
+    return response;
   },
 
   // Delete adoption
   deleteAdoption: async (adoptionId: string) => {
-    await apiClient.delete(`/adoption/${adoptionId}`);
+    await apiClient.delete(`/adoptions/${adoptionId}/`);
   },
 };

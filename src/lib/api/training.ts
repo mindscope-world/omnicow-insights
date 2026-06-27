@@ -1,6 +1,6 @@
 import apiClient from './client';
 
-// Define TypeScript interfaces for training session based on backend schema
+// Define TypeScript interfaces for training data based on training endpoints
 export interface TrainingSession {
   id: string;
   title: string;
@@ -27,20 +27,20 @@ export const trainingApi = {
       limit: limit.toString(),
       ...filters,
     });
-    const response = await apiClient.get(`/training?${params.toString()}`);
-    return response.data;
+    const response = await apiClient.get(`/trainings/?${params.toString()}`);
+    return response;
   },
 
   // Get single training session by ID
   getTrainingSessionById: async (sessionId: string) => {
-    const response = await apiClient.get(`/training/${sessionId}`);
-    return response.data;
+    const response = await apiClient.get(`/trainings/${sessionId}/`);
+    return response;
   },
 
   // Create new training session
   createTrainingSession: async (trainingData: Partial<TrainingSession>) => {
-    const response = await apiClient.post('/training', trainingData);
-    return response.data;
+    const response = await apiClient.post('/trainings/', trainingData);
+    return response;
   },
 
   // Update existing training session
@@ -48,12 +48,12 @@ export const trainingApi = {
     sessionId: string,
     trainingData: Partial<TrainingSession>
   ) => {
-    const response = await apiClient.put(`/training/${sessionId}`, trainingData);
-    return response.data;
+    const response = await apiClient.put(`/trainings/${sessionId}/`, trainingData);
+    return response;
   },
 
   // Delete training session
   deleteTrainingSession: async (sessionId: string) => {
-    await apiClient.delete(`/training/${sessionId}`);
+    await apiClient.delete(`/trainings/${sessionId}/`);
   },
 };

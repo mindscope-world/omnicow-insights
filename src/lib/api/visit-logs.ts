@@ -1,37 +1,33 @@
 import apiClient from './client';
 
 // Define TypeScript interfaces for visit log data based on visit-log endpoints
-export interface VisitLogResponse {
-  id: string; // ISO date string
+export interface VisitLog {
+  id: string;
+  farmer_id: string;
+  visit_date: string; // ISO date string
+  location?: string;
+  notes?: string | null;
+  created_by: string;
+  created_at: string; // ISO date string
   updated_at: string; // ISO date string
 }
 
-// Inputs for visit history API functions
-export interface VisitHistoryParams {
-  id: string;
-  farmer_id: string;
-  agent_id: string;
-  visit_date: string; // ISO date string
-  notes: string | null;
-  created_at: string; // ISO date string
-}
-
-// Input Requests API functions
+// Visit Logs API functions
 export const visitLogsApi = {
-  // Create a new visit log entry
+  // Create new visit log
   createVisitLog: async (visitData: {
     farmer_id: string;
     agent_id: string;
     visit_date: string; // ISO date string
     notes?: string | null;
-  }): Promise<VisitLogResponse> => {
-    const response = await apiClient.post(`/visit-logs/`, visitData);
-    return response.data;
+  }): Promise<VisitLog> => {
+    const response = await apiClient.post('/visit-logs/', visitData);
+    return response;
   },
 
   // Get visit history for a farmer
-  getVisitHistory: async (farmerId: string): Promise<VisitLogResponse[]> => {
-    const response = await apiClient.get(`/visit-history/${farmerId}`);
-    return response.data;
+  getVisitHistory: async (farmerId: string): Promise<VisitLog[]> => {
+    const response = await apiClient.get(`/visit-logs/farmer/${farmerId}/`);
+    return response;
   },
 };

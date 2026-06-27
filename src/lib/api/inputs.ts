@@ -18,12 +18,12 @@ export const inputsApi = {
   // Get all input products
   getAllInputs: async (): Promise<InputProductResponse[]> => {
     const response = await apiClient.get(`/inputs/`);
-    return response.data;
+    return response;
   },
 
   // Get input product by ID
   getInputById: async (inputId: string): Promise<InputProductResponse> => {
-    const response = await apiClient.get(`/inputs/${inputId}`);
-    return response.data;
+    const response = await apiClient.get(`/inputs/${inputId}/`);
+    return response;
   },
 };

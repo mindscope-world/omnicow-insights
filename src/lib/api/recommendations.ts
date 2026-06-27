@@ -30,19 +30,19 @@ export interface RecommendationGenerateResponse {
 export const recommendationsApi = {
   // Get recommendations for a specific farmer
   getFarmerRecommendations: async (farmerId: string): Promise<AdvisoryRecommendationResponse[]> => {
-    const response = await apiClient.get(`/recommendations/farmer/${farmerId}`);
-    return response.data;
+    const response = await apiClient.get(`/recommendations/farmer/${farmerId}/`);
+    return response;
   },
 
   // Get trending topics
   getTrendingTopics: async (): Promise<TrendingTopic[]> => {
-    const response = await apiClient.get(`/recommendations/trending-topics`);
-    return response.data;
+    const response = await apiClient.get(`/recommendations/trending-topics/`);
+    return response;
   },
 
   // Generate recommendations for a farmer
   generateRecommendations: async (farmerId: string): Promise<RecommendationGenerateResponse> => {
-    const response = await apiClient.post(`/recommendations/generate/${farmerId}`, {});
-    return response.data;
+    const response = await apiClient.post(`/recommendations/generate`, { farmer_id: farmerId });
+    return response;
   },
 };

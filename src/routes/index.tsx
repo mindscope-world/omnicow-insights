@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Download, RefreshCw, Route as RouteIcon, ArrowUpDown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,16 +56,24 @@ function PriorityQueue() {
   }, [farmers]);
 
   // Set selectedId to first farmer when data loads and none selected
-  if (farmers.length > 0 && !selectedId) {
-    setSelectedId(farmers[0].id);
-  }
+  useEffect(() => {
+    if (farmers.length > 0 && !selectedId && farmers[0]?.id) {
+      setSelectedId(farmers[0].id);
+    }
+  }, [farmers, selectedId]);
 
   const filtered = useMemo(() => {
     let list = [...farmers];
     if (filter === "urgent" || filter === "watch" || filter === "low")
       list = list.filter(f => f.priority === filter);
-    if (filter === "day7") list = list.filter(f => f.window.kind === "Day 7");
-    if (filter === "day90") list = list.filter(f => f.window.kind === "Day 90");
+    if (filter === "day7") list = list.filter(f =>
+      typeof f.window?.kind === 'string' &&
+      f.window.kind === "Day 7"
+    );
+    if (filter === "day90") list = list.filter(f =>
+      typeof f.window?.kind === 'string' &&
+      f.window.kind === "Day 90"
+    );
     if (cluster !== "all") list = list.filter(f => f.cluster === cluster);
     list.sort((a, b) => b[sort] - a[sort]);
     return list;
@@ -75,7 +83,11 @@ function PriorityQueue() {
 
   const persuadable = farmers.filter(f => f.day7 >= 0.3 && f.day7 <= 0.85).length;
   const avg = farmers.length > 0 ? Math.round((farmers.reduce((s, f) => s + f.day7, 0) / farmers.length) * 100) : 0;
-  const closing = farmers.filter(f => f.window.daysRemaining <= 2).length;
+  const closing = farmers.filter(f =>
+    typeof f.window?.daysRemaining === 'number' &&
+    !isNaN(f.window.daysRemaining) &&
+    f.window.daysRemaining <= 2
+  ).length;
 
   // Mock counts by priority (since we don't have an API endpoint for aggregated counts)
   const counts = {
@@ -223,7 +235,10 @@ function FarmerRow({
   selected: boolean;
   onClick: () => void;
 }) {
-  const urgentWindow = farmer.window.daysRemaining <= 2;
+  const urgentWindow =
+    typeof farmer.window?.daysRemaining === 'number' &&
+    !isNaN(farmer.window.daysRemaining) &&
+    farmer.window.daysRemaining <= 2;
   return (
     <tr
       onClick={onClick}
@@ -255,7 +270,11 @@ function FarmerRow({
       </td>
       <td className="px-3 py-3">
         <span className={cn("text-xs font-medium", urgentWindow ? "text-urgent" : "text-text-mid")}>
-          {farmer.window.kind} · {farmer.window.daysRemaining}d
+          {(typeof farmer.window?.kind === 'string' && farmer.window.kind) || 'Unknown'}
+          &middot;
+          {(typeof farmer.window?.daysRemaining === 'number' && !isNaN(farmer.window.daysRemaining))
+            ? `${Math.max(0, Math.min(99, Math.floor(farmer.window.daysRemaining)))}d`
+            : '?d'}
         </span>
       </td>
     </tr>

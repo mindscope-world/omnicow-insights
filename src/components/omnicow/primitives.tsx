@@ -47,11 +47,12 @@ const PRIORITY_META: Record<Priority, { label: string; dot: string; text: string
 };
 
 export function PriorityDot({ priority, className }: { priority: Priority; className?: string }) {
-  return <span className={cn("inline-block size-2.5 rounded-full", PRIORITY_META[priority].dot, className)} />;
+  const m = PRIORITY_META[priority] ?? PRIORITY_META.low;
+  return <span className={cn("inline-block size-2.5 rounded-full", m.dot, className)} />;
 }
 
 export function PriorityBadge({ priority }: { priority: Priority }) {
-  const m = PRIORITY_META[priority];
+  const m = PRIORITY_META[priority] ?? PRIORITY_META.low;
   return (
     <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold", m.bg, m.text)}>
       <span className={cn("size-1.5 rounded-full", m.dot)} />

@@ -28,19 +28,19 @@ export interface TrendsData {
 export const analyticsApi = {
   // Get adoption rates by ward
   getAdoptionRates: async (): Promise<AdoptionRate[]> => {
-    const response = await apiClient.get(`/analytics/adoption-rates`);
-    return response.data;
+    const response = await apiClient.get(`/analytics/adoption-rates/`);
+    return response;
   },
 
   // Get ward performance metrics
   getWardPerformance: async (): Promise<WardPerformance[]> => {
-    const response = await apiClient.get(`/analytics/ward-performance`);
-    return response.data;
+    const response = await apiClient.get(`/analytics/ward-performance/`);
+    return response;
   },
 
   // Get trends data
   getTrends: async (): Promise<TrendsData> => {
-    const response = await apiClient.get(`/analytics/trends`);
-    return response.data;
+    const response = await apiClient.get(`/analytics/trends/`);
+    return response;
   },
 };

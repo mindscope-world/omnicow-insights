@@ -20,6 +20,6 @@ export const inputRequestsApi = {
     quantity: number;
   }): Promise<InputRequestResponse> => {
     const response = await apiClient.post(`/input-requests/`, inputRequestData);
-    return response.data;
+    return response;
   },
 };

@@ -21,7 +21,7 @@ export interface DemandForecastResponse {
 export const demandForecastApi = {
   // Get demand forecast for a specific ward
   getDemandForecast: async (ward: string): Promise<DemandForecastResponse> => {
-    const response = await apiClient.get(`/demand-forecast/${ward}`);
-    return response.data;
+    const response = await apiClient.get(`/demand-forecast/${ward}/`);
+    return response;
   },
 };
