@@ -30,3 +30,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Documentation
+deployment.md
+integration.md
+FIX_SUMMARY.md
+analysis.md

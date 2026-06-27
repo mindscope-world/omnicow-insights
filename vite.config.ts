@@ -13,9 +13,19 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    //   server: {
+    //     port: 5173,
+    //     strictPort: true,
+    //   },
+    // },
     server: {
-      port: 5173,
-      strictPort: true,
-    },
+      host: '0.0.0.0',
+      proxy: {
+        '/api': {
+          target: 'http://api:8000',  // Docker service name works here (server-side)
+          changeOrigin: true,
+        }
+      }
+    }
   },
 });
